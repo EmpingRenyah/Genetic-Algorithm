@@ -23,7 +23,7 @@ def fitness_value(genome: Genome) -> float:
     BinaryLeft = binary_decode(genome[:GENOME_LENGTH//2])
     BinaryRight = binary_decode(genome[GENOME_LENGTH//2:])
 
-    trig_term = math.sin(BinaryLeft)*math.cos(BinaryRight) + math.tan(BinaryRight + BinaryLeft)
+    trig_term = math.sin(BinaryLeft) * math.cos(BinaryRight) * math.tan(BinaryRight + BinaryLeft)
 
     exp_term = 0.5 * math.exp(1 - math.sqrt(BinaryRight**2))
 
@@ -31,16 +31,17 @@ def fitness_value(genome: Genome) -> float:
 
 def main():
     population_size = 100
-    generations = 50
-    mutation_rate = 0.01
+    generations = 500
+    mutation_rate = 0.0001
     population = generate_population(population_size)
     for generation in range(generations):
         fitness_values = [fitness_value(genome) for genome in population]
-        best_genome = population[fitness_values.index(max(fitness_values))]
-        print(f"Generation {generation+1}: Best Genome: {best_genome}, Fitness: {max(fitness_values)}")
+        best_genome = population[fitness_values.index(min(fitness_values))]
+        print(f"Generation {generation+1}: Best Genome: {best_genome}, Decoded Genome: {[binary_decode(best_genome[:GENOME_LENGTH//2]), binary_decode(best_genome[GENOME_LENGTH//2:])]}, Fitness: {min(fitness_values)}")
         # Selection (roulette wheel)
         total_fitness = sum(fitness_values)
-        probabilities = [fitness / total_fitness for fitness in fitness_values]
+        probabilities = [(total_fitness - fitness) / total_fitness for fitness in fitness_values]
+        # New Population
         new_population = []
         for _ in range(population_size):
             parent1 = random.choices(population, weights=probabilities, k=1)[0]
